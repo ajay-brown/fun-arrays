@@ -6,7 +6,7 @@ var dataset = require('./dataset.json');
   assign the resulting new array to `hundredThousandairs`
 */
 
-var hundredThousandairs = dataset.bankBalances.filter(balance => balance.amount>100000) ;
+var hundredThousandairs = dataset.bankBalances.filter(balance => balance.amount>100000); 
 
 /*
   DO NOT MUTATE DATA.
@@ -60,16 +60,20 @@ var datasetWithRoundedDollar = dataset.bankBalances.map(function(amount,state) {
   assign the resulting new array to `roundedDime`
 */
 var datasetWithRoundedDime = dataset.bankBalances.map(function(amount,state) {
-  let roundedValue = Math.round((amount.amount * 10) / 10);
+  let newBal = amount.amount
+  let roundedDimeAmount = Number(parseFloat(newBal).toFixed(1));
   return {
     "amount": amount,
     "state": state,
-    "roundedDime": roundedValue,
+    "roundedDime": roundedDimeAmount,
   }
 });
 
 // set sumOfBankBalances to be the sum of all value held at `amount` for each bank object
-var sumOfBankBalances = null;
+var sumOfBankBalances = dataset.bankBalances.reduce(function(prevVal, amount) {
+  let newAmount = Number(amount.amount);
+  return Math.round((prevVal + newAmount)*100) / 100;
+},0);
 
 /*
   from each of the following states:
@@ -81,8 +85,36 @@ var sumOfBankBalances = null;
     Delaware
   take each `amount` and add 18.9% interest to it rounded to the nearest cent
   and then sum it all up into one value saved to `sumOfInterests`
- */
-var sumOfInterests = null;
+ */ /* shift + opt + A */
+var wisc = dataset.bankBalances.filter(function(stateName) {
+  return stateName.state === "WI";  
+});
+
+var illi = dataset.bankBalances.filter(function(stateName) {
+  return stateName.state === "IL";  
+});
+
+var wy = dataset.bankBalances.filter(function(stateName) {
+  return stateName.state === "WY";  
+});
+
+var ohio = dataset.bankBalances.filter(function(stateName) {
+  return stateName.state === "OH";  
+});
+
+var dela = dataset.bankBalances.filter(function(stateName) {
+  return stateName.state === "DE";  
+});
+var peaches = dataset.bankBalances.filter(function(stateName) {
+  return stateName.state === "GA";  
+});
+
+const selectedStates = wisc.concat(illi,wy,ohio,dela,peaches);
+var sumOfInterests = selectedStates.reduce(function(prevVal, amount) {  
+    let stateBal = amount.amount;
+    let interestAdd = stateBal * .189 
+    return Math.round((prevVal + interestAdd)*100) / 100;
+}, 0);
 
 /*
   aggregate the sum of bankBalance amounts
@@ -100,7 +132,17 @@ var sumOfInterests = null;
     round this number to the nearest 10th of a cent before moving on.
   )
  */
-var stateSums = null;
+
+var stateSums = dataset.bankBalances.reduce(function(prevVal,stateName) {
+  var key = stateName.state;
+  if (!prevVal[key]) {
+    prevVal[key] = Math.round(stateName.amount* 100) / 100;
+  } else {
+    prevVal[key] += Math.round(stateName.amount * 100) / 100;
+  }
+  return prevVal;
+}, {});
+console.log(stateSums);
 
 /*
   for all states *NOT* in the following states:
